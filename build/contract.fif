@@ -1,0 +1,56 @@
+"Asm.fif" include
+// automatically generated from `/Users/vsevolodignatev/Library/Application Support/toncli/func-libs/stdlib.func` `/Users/vsevolodignatev/Desktop/Projects/TON_proxy_smart/func/code.func` 
+PROGRAM{
+  DECLPROC parse_sender_address
+  DECLPROC load_data
+  DECLPROC recv_internal
+  parse_sender_address PROC:<{
+    //  in_msg_full
+    CTOS	//  cs
+    4 LDU	//  _11 _10
+    NIP	//  cs
+    LDMSGADDR	//  _13 _12
+    DROP	//  sender_address
+  }>
+  load_data PROC:<{
+    // 
+    c4 PUSH	//  _1
+    CTOS	//  ds
+    LDMSGADDR	//  _6 _5
+    DROP	//  _3
+  }>
+  recv_internal PROC:<{
+    //  balance msg_value in_msg_full in_msg_body
+    s3 POP
+    NIP	//  in_msg_body in_msg_full
+    parse_sender_address INLINECALLDICT	//  in_msg_body sender_address
+    load_data INLINECALLDICT	//  in_msg_body sender_address owner_address
+    2DUP	//  in_msg_body sender_address owner_address sender_address owner_address
+    SDEQ	//  in_msg_body sender_address owner_address _8
+    NOT	//  in_msg_body sender_address owner_address _9
+    IF:<{	//  in_msg_body sender_address owner_address
+      NEWC	//  in_msg_body sender_address owner_address _11
+      s0 s3 XCHG2	//  owner_address sender_address _11 in_msg_body
+      STSLICER	//  owner_address sender_address _12
+      ENDC	//  owner_address sender_address msg_body_cell
+      0 PUSHINT	//  owner_address sender_address msg_body_cell _15=0
+      24 PUSHINT	//  owner_address sender_address msg_body_cell _15=0 _16=24
+      NEWC	//  owner_address sender_address msg_body_cell _15=0 _16=24 _17
+      6 STU	//  owner_address sender_address msg_body_cell _15=0 _19
+      s0 s4 XCHG2	//  _15=0 sender_address msg_body_cell _19 owner_address
+      STSLICER	//  _15=0 sender_address msg_body_cell _20
+      s3 PUSH	//  _15=0 sender_address msg_body_cell _20 _21=0
+      STGRAMS	//  _15=0 sender_address msg_body_cell _22
+      s1 s3 XCHG	//  msg_body_cell sender_address _15=0 _22
+      107 STU	//  msg_body_cell sender_address _36
+      SWAP	//  msg_body_cell _36 sender_address
+      STSLICER	//  msg_body_cell _37
+      STREF	//  _38
+      ENDC	//  msg
+      64 PUSHINT	//  msg _40=64
+      SENDRAWMSG
+    }>ELSE<{
+      3 BLKDROP	// 
+    }>
+  }>
+}END>c
